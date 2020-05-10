@@ -243,6 +243,64 @@ struct segmentree {
 		return sum;
 	}
 };
+struct trienode {
+	char c;
+	int cnt, alphabet;
+	vector<trienode*> sons;
+	trienode() : c(0), cnt(1), alphabet(0) {
+		sons.resize(0);
+	}
+	trienode(char ch, int ab): c(ch), cnt(1), alphabet(ab){
+		sons.resize(alphabet);
+	}
+};
+struct trie {
+	trienode* head;
+	int words, alphabet;
+	char firstLetter;
+	trie() : head(new trienode()), words(0), alphabet(0), firstLetter(0) { head->cnt = 1; }
+	trie(int ab, char first) : head(new trienode('#', ab)), words(0), alphabet(ab), firstLetter(first) { head->cnt = 1; }
+	bool insert(string word) {
+		int sz = word.length();
+		trienode* iter = head;
+		foru(i, 0, sz) {
+			if (!(iter->sons)[word[i] - firstLetter]) {
+				(iter->sons)[word[i] - firstLetter] = new trienode(word[i], alphabet);
+			}
+			else {
+				(iter->sons)[word[i] - firstLetter]->cnt++;
+			}
+			iter = (iter->sons)[word[i] - firstLetter];
+		}
+		words++;
+		return true;
+	}
+	int find(string word) {
+		int sz = word.size();
+		trienode* iter = head;
+		foru(i, 0, sz) {
+			if ((iter->sons)[word[i] - firstLetter] == nullptr) return 0;
+			iter = (iter->sons)[word[i] - firstLetter];
+		}
+		return iter->cnt;
+	}
+	bool remove(string word) {
+		int sz = word.size();
+		trienode* iter = head, *tmp;
+		if (!find(word)) return false;
+		foru(i, 0, sz) {
+			if (!(iter->sons)[word[i] - firstLetter]) return false;
+			tmp = iter;
+			iter = (iter->sons)[word[i] - firstLetter];
+			iter->cnt--;
+			if (!iter->cnt) (tmp->sons)[word[i] - firstLetter] = nullptr;
+			if (!tmp->cnt) delete tmp;
+		}
+		if (!iter->cnt) delete iter;
+		words--;
+		return true;
+	}
+};
 ll mult(ll a, ll b) {
 	return ((a % MOD) * (b % MOD)) % MOD;
 }
@@ -252,6 +310,16 @@ ll add(ll a, ll b) {
 ll subtract(ll a, ll b) {
 	if (a >= b)return (a - b) % MOD;
 	return add(a, -b + ((b - a) / MOD + 1) * MOD);
+}
+vll divisors(ll n) {
+	vll ans;
+	for (ll i = 1; i * i <= n; i++) {
+		if (n%i) {
+			ans.pb(i);
+			if (i*i != n)ans.pb(n / i);
+		}
+	}
+	return ans;
 }
 int customLog(ll b, ll x) {
 	int res = -1;
@@ -266,5 +334,6 @@ int main() {
 	fast;
 	ifstream in("input.txt");
 	ofstream out("output.txt");
+	
 	return 0;
 }
