@@ -27,6 +27,7 @@
 #include <chrono>
 #include <numeric>
 #include <bitset>
+#include <stack>
 using namespace std;
 const int INF = 1 << 29;
 typedef long long ll;
@@ -80,7 +81,15 @@ struct DisjointSet {
 };
 struct frac {
 	ll a, b;
-	frac(int x, int y) {
+	frac() {
+		a = 1;
+		b = 1;
+	}
+	frac(ll x) {
+		a = x;
+		b = 1;
+	}
+	frac(ll x, ll y) {
 		if (!y) {
 			a = 0;
 			b = 0;
@@ -113,7 +122,25 @@ struct frac {
 	const bool operator>(const frac& other) const {
 		return(a*other.b > b * other.a);
 	}
+	const frac operator+(const frac& other) const {
+		ll lcm = (b*other.b)/gcd(b, other.b);
+		return frac(a * (lcm / b) + other.a * (lcm / other.b), lcm);
+	}
+	const frac operator-(const frac& other) const {
+		ll lcm = (b*other.b) / gcd(b, other.b);
+		return frac(a * (lcm / b) - other.a * (lcm / other.b), lcm);
+	}
+	const frac operator*(const frac& other) const {
+		ll g = gcd(a*other.a, b*other.b);
+		return frac((a*other.a) / g, (b*other.b) / g);
+	}
+	friend ostream& operator<<(ostream& os, const frac& f);
 };
+ostream& operator<<(ostream& os, const frac& f)
+{
+	os << f.a << "/" << f.b;
+	return os;
+}
 struct pt {
 	ll x, y;
 	pt(): x(0), y(0) {}
@@ -152,33 +179,34 @@ struct line {
 	}
 	
 };
+template<class T>
 struct fen{
-	vector<ll> fenwick;
+	vector<T> fenwick;
 	int size;
 	fen(int sz) {
 		size = sz;
 		fenwick.resize(size);
-		foru(i, 0, size)fenwick[i] = 0;
+		foru(i, 0, size)fenwick[i](0);
 	}
-	fen(vll arr) {
+	fen(vector<T> arr) {
 		size = arr.size();
 		fenwick.resize(size);
-		foru(i, 0, size)fenwick[i] = 0;
+		foru(i, 0, size)fenwick[i](0);
 		foru(i, 0, size)update(i, arr[i]);
 	}
-	void update(int index, ll add) {
+	void update(int index, T add) {
 		for (int k = index; k < size; k |= (~k & -~k)) {
-			fenwick[k] += add;
+			fenwick[k] = fenwick[k] + add;
 		}
 	}
-	ll query(int to) {
-		ll sum = 0;
+	T query(int to) {
+		T sum = 0;
 		for (int curr = to + 1; curr > 0; curr ^= (curr & -curr)) {
-			sum += fenwick[curr - 1];
+			sum = sum + fenwick[curr - 1];
 		}
 		return sum;
 	}
-	ll rangeQuery(int from, int to) {
+	T rangeQuery(int from, int to) {
 		if (!from)return query(to);
 		return query(to) - query(from - 1);
 	}
@@ -204,9 +232,10 @@ struct pretree {
 		return prefix[j] - prefix[i - 1];
 	}
 };
+template<class T>
 struct segmentree {
-	vll segment;
-	segmentree(vll arr) {
+	vector<T> segment;
+	segmentree(vector<T> arr) {
 		int size = arr.size();
 		segment.resize(2 * size);
 		for (int k = 0; k < size; k++)
@@ -214,27 +243,36 @@ struct segmentree {
 		for (int k = size - 1; k > 0; k--)
 			segment[k] = segment[2 * k] + segment[2 * k + 1];
 	}
-	void update(int index, ll val) {
+	void update(int index, T val) {
 		int size = segment.size();
 		int t = index + size;
 		segment[t] = val;
 		while (t > 1) {
-			t /= 2;
+			t >>= 1;
 			segment[t] = segment[2 * t] + segment[2 * t + 1];
 		}
 	}
-	ll query(int fromIncluded, int toNotIncluded) {
+	void add(int index, T val) {
 		int size = segment.size();
-		ll sum = 0;
+		int t = index + size;
+		segment[t] = segment[t] + val;
+		while (t > 1) {
+			t >>= 1;
+			segment[t] = segment[2 * t] + segment[2 * t + 1];
+		}
+	}
+	T query(int fromIncluded, int toNotIncluded) {
+		int size = segment.size();
+		T sum(0);
 		fromIncluded += size;
 		toNotIncluded += size;
 		while (fromIncluded < toNotIncluded) {
 			if (fromIncluded % 2 == 1) {
-				sum += segment[fromIncluded];
+				sum = sum + segment[fromIncluded];
 				fromIncluded++;
 			}
 			if (toNotIncluded % 2 == 1) {
-				sum += segment[toNotIncluded - 1];
+				sum = sum + segment[toNotIncluded - 1];
 				toNotIncluded--;
 			}
 			fromIncluded /= 2;
@@ -301,6 +339,60 @@ struct trie {
 		return true;
 	}
 };
+template<class T>
+struct matrix {
+	vector<vector<T>> mat;
+	int size;
+	matrix(vector<vector<T>> m) {
+		size = m.size();
+		mat = m;
+	}
+	matrix(T a) {
+		size = 1;
+		mat.resize(1);
+		mat[0].resize(1);
+		mat[0][0] = a;
+	}
+	const matrix operator+(const matrix& other) const {
+		vector<vector<T>> res(size, vector<T>(size));
+		foru(i, 0, size) {
+			foru(j, 0, size) res[i][j] = mat[i][j] + other.mat[i][j];
+		}
+		return matrix(res);
+	}
+	const matrix operator-(const matrix& other) const {
+		vector<vector<T>> res(size, vector<T>(size));
+		foru(i, 0, size) {
+			foru(j, 0, size) res[i][j] = mat[i][j] - other.mat[i][j];
+		}
+		return matrix(res);
+	}
+	const matrix operator*(const matrix& other) const {
+		vector<vector<T>> res(size, vector<T>(size, T(0)));
+		foru(i, 0, size) {
+			foru(j, 0, size) {
+				foru(k, 0, size) {
+					res[i][j] = res[i][j] + (mat[i][k] * other.mat[k][j]);
+				}
+			}
+		}
+		return matrix(res);
+	}
+	void print() {
+		foru(i, 0, size) {
+			foru(j, 0, size) cout << mat[i][j] << " ";
+			cout << endl;
+		}
+		cout << endl;
+	}
+};
+template<class T>
+T pow(T a, int k) {
+	if (!k)return T(1);
+	T tmp = pow(a, k / 2);
+	if (k & 1)tmp = tmp * a;
+	return tmp;
+}
 ll mult(ll a, ll b) {
 	return ((a % MOD) * (b % MOD)) % MOD;
 }
@@ -334,6 +426,7 @@ int main() {
 	fast;
 	ifstream in("input.txt");
 	ofstream out("output.txt");
-	
+
+
 	return 0;
 }
