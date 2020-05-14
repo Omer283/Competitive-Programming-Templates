@@ -75,6 +75,7 @@ struct DisjointSet {
 		if (sz[fa] < sz[fb])swap(fa, fb);
 		if (fa == fb)return false;
 		f[fb] = fa;
+		fathers.erase(fb);
 		sz[fa] = max(sz[fa], sz[fb] + 1);
 		return true;
 	}
@@ -123,7 +124,7 @@ struct frac {
 		return(a*other.b > b * other.a);
 	}
 	const frac operator+(const frac& other) const {
-		ll lcm = (b*other.b)/gcd(b, other.b);
+		ll lcm = (b*other.b) / gcd(b, other.b);
 		return frac(a * (lcm / b) + other.a * (lcm / other.b), lcm);
 	}
 	const frac operator-(const frac& other) const {
@@ -143,8 +144,8 @@ ostream& operator<<(ostream& os, const frac& f)
 }
 struct pt {
 	ll x, y;
-	pt(): x(0), y(0) {}
-	pt(int a, int b): x(a), y(b) {}
+	pt() : x(0), y(0) {}
+	pt(int a, int b) : x(a), y(b) {}
 	frac slope(pt other) {
 		return frac(y - other.y, x - other.x);
 	}
@@ -155,9 +156,9 @@ struct pt {
 };
 struct line {
 	frac m, b;
-	line() : m(frac(0,0)), b(frac(0,0)) {}
+	line() : m(frac(0, 0)), b(frac(0, 0)) {}
 	line(pt p, pt q) : m(p.slope(q)), b(p.offset(q)) {}
-	line(frac slope, frac offset): m(slope), b(offset) {}
+	line(frac slope, frac offset) : m(slope), b(offset) {}
 	const bool operator<=(const line& other) const {
 		if (this->m == other.m) return this->b <= other.b;
 		return this->m <= other.m;
@@ -177,10 +178,10 @@ struct line {
 	const bool operator==(const line& other) const {
 		return (this->m == other.m) && (this->b == other.b);
 	}
-	
+
 };
 template<class T>
-struct fen{
+struct fen {
 	vector<T> fenwick;
 	int size;
 	fen(int sz) {
@@ -288,7 +289,7 @@ struct trienode {
 	trienode() : c(0), cnt(1), alphabet(0) {
 		sons.resize(0);
 	}
-	trienode(char ch, int ab): c(ch), cnt(1), alphabet(ab){
+	trienode(char ch, int ab) : c(ch), cnt(1), alphabet(ab) {
 		sons.resize(alphabet);
 	}
 };
@@ -387,11 +388,12 @@ struct matrix {
 	}
 };
 template<class T>
-T pow(T a, int k) {
+T customPow(T a, int k) {
 	if (!k)return T(1);
-	T tmp = pow(a, k / 2);
-	if (k & 1)tmp = tmp * a;
-	return tmp;
+	T tmp = customPow(a, k / 2);
+	T ans = tmp * tmp;
+	if (k & 1)ans = ans * a;
+	return ans;
 }
 ll mult(ll a, ll b) {
 	return ((a % MOD) * (b % MOD)) % MOD;
@@ -426,7 +428,6 @@ int main() {
 	fast;
 	ifstream in("input.txt");
 	ofstream out("output.txt");
-
-
+	
 	return 0;
 }
