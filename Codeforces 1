@@ -87,6 +87,33 @@ struct rmq {
 		return min(a[mylen][l], a[mylen][r - (1 << mylen) + 1]);
 	}
 };
+struct lca {
+	vector<vector<int>> adj;
+	vector<int> appear;
+	vector<pii> dep;
+	rmq<pii>* tree;
+	int sz;
+	lca(vector<vector<int>> adjacency) {
+		adj = adjacency;
+		sz = adjacency.size();
+		appear.resize(sz);
+		dfsscan(0, -1, 0);
+		tree = new rmq<pii>(dep);
+	}
+	void dfsscan(int src, int prev, int currdep) {
+		appear[src] = dep.size();
+		dep.pb(mp(currdep, src));
+		for (auto x : adj[src]) {
+			if (x == prev)continue;
+			dfsscan(x, src, currdep + 1);
+			dep.pb(mp(currdep, src));
+		}
+	}
+	int query(int a, int b) {
+		int x = min(appear[a],appear[b]), y = max(appear[a],appear[b]);
+		return tree->query(x, y).second;
+	}
+};
 struct DisjointSet {
 	us<int> fathers;
 	vi f, sz;
