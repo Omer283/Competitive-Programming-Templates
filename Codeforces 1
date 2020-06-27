@@ -54,6 +54,39 @@ struct custom_hash {
 		return splitmix64(x + FIXED_RANDOM);
 	}
 };
+template<class T>
+struct rmq {
+	vector<vector<T>> a;
+	vector<int> logs;
+	int dep, len;
+	rmq(vector<T> arr) {
+		len = arr.size();
+		dep = 0;
+		int tmp = len;
+		while (tmp) {
+			tmp >>= 1;
+			dep++;
+		}
+		a.resize(dep);
+		foru(i, 0, dep) {
+			a[i].resize(len);
+			for (int j = 0; j + (1 << i) <= len; j++) {
+				if (!i)a[i][j] = arr[j];
+				else a[i][j] = min(a[i - 1][j], a[i - 1][j + (1 << (i - 1))]);
+			}
+		}
+		initLogs();
+	}
+	void initLogs() {
+		logs.resize(len + 1);
+		logs[1] = 0;
+		foru(i, 2, len + 1)logs[i] = logs[i >> 1] + 1;
+	}
+	T query(int l, int r) {
+		int mylen = logs[r - l + 1];
+		return min(a[mylen][l], a[mylen][r - (1 << mylen) + 1]);
+	}
+};
 struct DisjointSet {
 	us<int> fathers;
 	vi f, sz;
