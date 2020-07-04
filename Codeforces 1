@@ -523,15 +523,15 @@ T customPow(T a, int k) {
 	if (k & 1)ans = ans * a;
 	return ans;
 }
-ll mult(ll a, ll b) {
-	return ((a % MOD) * (b % MOD)) % MOD;
+void mult(ll &a, ll b) {
+	a = ((a % MOD) * (b % MOD)) % MOD;
 }
-ll add(ll a, ll b) {
-	return ((a % MOD) + (b % MOD)) % MOD;
+void add(ll &a, ll b) {
+	a = ((a % MOD) + (b % MOD)) % MOD;
 }
-ll subtract(ll a, ll b) {
-	if (a >= b)return (a - b) % MOD;
-	return add(a, -b + ((b - a) / MOD + 1) * MOD);
+void subtract(ll &a, ll b) {
+	if (a >= b)a = (a - b) % MOD;
+	else a = (a - b) % MOD + MOD;
 }
 vll divisors(ll n) {
 	vll ans;
