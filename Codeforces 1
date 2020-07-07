@@ -308,7 +308,7 @@ struct segmentree {
 	void update(int index, T val) {
 		int t = index + size;
 		segment[t] = val;
-		while (t > 1) {
+		while (t >= 1) {
 			t >>= 1;
 			segment[t] = gcd(segment[2 * t], segment[2 * t + 1]);
 		}
