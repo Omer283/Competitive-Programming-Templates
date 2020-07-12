@@ -559,3 +559,11 @@ int main() {
 	
 	return 0;
 }
+
+/*
+Things to look for: 
+Overflow (ll)
+set max to -1, min to 1e18
+with floatingpoint use fixed setprecision
+dont print 1e8
+*/
