@@ -295,22 +295,32 @@ struct pretree {
 };
 template<class T>
 struct segmentree {
+private:
 	vector<T> segment;
 	int size;
+	T action(T a, T b) {
+		return a + b;
+	}
+public:
+	segmentree(int sz) {
+		size = sz;
+		segment.resize(2 * sz);
+		for (int k = 0; k < 2 * sz; k++) segment[k] = 0;
+	}
 	segmentree(vector<T> arr) {
 		size = arr.size();
 		segment.resize(2 * size);
 		for (int k = 0; k < size; k++)
 			segment[size + k] = arr[k];
 		for (int k = size - 1; k > 0; k--)
-			segment[k] = gcd(segment[2 * k], segment[2 * k + 1]);
+			segment[k] = action(segment[2 * k], segment[2 * k + 1]);
 	}
 	void update(int index, T val) {
 		int t = index + size;
 		segment[t] = val;
 		while (t >= 1) {
 			t >>= 1;
-			segment[t] = gcd(segment[2 * t], segment[2 * t + 1]);
+			segment[t] = action(segment[2 * t], segment[2 * t + 1]);
 		}
 	}
 	void add(int index, T val) {
@@ -318,7 +328,7 @@ struct segmentree {
 		segment[t] = segment[t] + val;
 		while (t > 1) {
 			t >>= 1;
-			segment[t] = gcd(segment[2 * t], segment[2 * t + 1]);
+			segment[t] = action(segment[2 * t], segment[2 * t + 1]);
 		}
 	}
 	T query(int fromIncluded, int toNotIncluded) {
@@ -327,11 +337,11 @@ struct segmentree {
 		toNotIncluded += size;
 		while (fromIncluded < toNotIncluded) {
 			if (fromIncluded % 2 == 1) {
-				sum = gcd(sum, segment[fromIncluded]);
+				sum = action(sum, segment[fromIncluded]);
 				fromIncluded++;
 			}
 			if (toNotIncluded % 2 == 1) {
-				sum = gcd(sum, segment[toNotIncluded - 1]);
+				sum = action(sum, segment[toNotIncluded - 1]);
 				toNotIncluded--;
 			}
 			fromIncluded /= 2;
