@@ -416,11 +416,23 @@ struct matrix {
 		size = m.size();
 		mat = m;
 	}
-	matrix(T a) {
-		size = 1;
-		mat.resize(1);
-		mat[0].resize(1);
-		mat[0][0] = a;
+	matrix(int defsz, T val) {
+		size = defsz;
+		mat.resize(defsz);
+		foru(i, 0, defsz)mat[i].resize(defsz);
+		foru(i, 0, defsz) {
+			foru(j, 0, defsz) {
+				if (i == j)mat[i][j] = val;
+				else mat[i][j] = 0;
+			}
+		}
+	}
+	void print() {
+		foru(i, 0, size) {
+			foru(j, 0, size) cout << mat[i][j] << " ";
+			cout << endl;
+		}
+		cout << endl;
 	}
 	const matrix operator+(const matrix& other) const {
 		vector<vector<T>> res(size, vector<T>(size));
@@ -447,12 +459,14 @@ struct matrix {
 		}
 		return matrix(res);
 	}
-	void print() {
+	const matrix operator%(const int& md) {
+		vector<vector<T>> res(size, vector<T>(size));
 		foru(i, 0, size) {
-			foru(j, 0, size) cout << mat[i][j] << " ";
-			cout << endl;
+			foru(j, 0, size) {
+				res[i][j] = mat[i][j] % md;
+			}
 		}
-		cout << endl;
+		return res;
 	}
 };
 template<class T>
