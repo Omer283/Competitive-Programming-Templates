@@ -590,4 +590,5 @@ Overflow (ll)
 set max to -1, min to 1e18
 with floatingpoint use fixed setprecision
 dont print 1e8
+GRAPH: CONNECTED DOUBLE EDGES SELF LOOPS
 */
