@@ -1,0 +1,69 @@
+struct CentroidDecomposition {
+private:
+	vector<vector<int>> adj, cadj;
+	int n, head;
+	bitset<300000> CHECKMYSIZE;
+	vector<int> subtree;
+	void dfs(int src, int prev) {
+		subtree[src] = 1;
+		for (auto x : adj[src]) {
+			if (x == prev || CHECKMYSIZE[x])continue;
+			dfs(x, src);
+			subtree[src] += subtree[x];
+		}
+	}
+	int findCentroid(int src, int prev, int treesz) {
+		bool bad = 0;
+		int s = 0;
+		for (auto x : adj[src]) {
+			if (x == prev || CHECKMYSIZE[x])continue;
+			bad |= (subtree[x] > treesz / 2);
+			s += subtree[x];
+		}
+		bad |= (treesz - s - 1 > treesz / 2);
+		if (!bad)return src;
+		int potential;
+		for (auto x : adj[src]) {
+			if (x == prev || CHECKMYSIZE[x])continue;
+			potential = findCentroid(x, src, treesz);
+			if (potential != -1)return potential;
+		}
+		return -1;
+	}
+	int construct(int src) {
+		dfs(src, -1);
+		int c = findCentroid(src, -1, subtree[src]);
+		CHECKMYSIZE[c] = 1;
+		for (auto x : adj[c]) {
+			if (CHECKMYSIZE[x])continue;
+			int p = construct(x);
+			cadj[c].pb(p);
+			cadj[p].pb(c);
+		}
+		return c;
+	}
+public:
+	CentroidDecomposition(vector<vector<int>> myadj) {
+		n = myadj.size();
+		adj = myadj;
+		cadj.resize(n);
+		subtree.resize(n);
+		fill(subtree.begin(), subtree.end(), 0);
+		head = construct(0);
+		CHECKMYSIZE.reset();
+	}
+	int scan() {
+		CHECKMYSIZE.reset();
+		return scanUtil(head, -1);
+	}
+	int scanUtil(int src, int prev) {
+		bs[src] = 1;
+		int p = doSomething(src), cand;
+		for (auto x : cadj[src]) {
+			if (x == prev)continue;
+			cand = scanUtil(x, src);
+			p = min(p, cand);
+		}
+		return p;
+	}
+};
