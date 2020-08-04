@@ -540,6 +540,99 @@ public:
 	}
 };
 template<class T>
+struct segment2D {
+private:
+	vector<vector<T>> seg, original;
+	int n, m;
+	T action(const T& lhs, const T& rhs) {
+		return gcd(lhs, rhs);
+	}
+	void buildY(int posX, int lx, int rx, int posY, int ly, int ry) {
+		if (ly > ry)return;
+		else if (ly == ry) {
+			if (lx == rx)seg[posX][posY] = original[lx][ly];
+			else seg[posX][posY] = action(seg[2 * posX][posY], seg[2 * posX + 1][posY]);
+		}
+		else {
+			int mid = (ly + ry) / 2;
+			buildY(posX, lx, rx, 2 * posY, ly, mid);
+			buildY(posX, lx, rx, 2 * posY + 1, mid + 1, ry);
+			seg[posX][posY] = action(seg[posX][2 * posY], seg[posX][2 * posY + 1]);
+		}
+	}
+	void buildX(int pos, int lx, int rx) {
+		if (lx > rx)return;
+		if (lx != rx) {
+			int mid = (lx + rx) / 2;
+			buildX(2 * pos, lx, mid);
+			buildX(2 * pos + 1, mid + 1, rx);
+		}
+		buildY(pos, lx, rx, 1, 0, m - 1);
+	}
+	T queryY(int posX, int posY, int cly, int cry, int ly, int ry) {
+		if (ly > ry)return 0;
+		else if (ly == cly && ry == cry) return seg[posX][posY];
+		else {
+			int mid = (cly + cry) / 2;
+			T a = queryY(posX, 2 * posY, cly, mid, ly, min(ry, mid));
+			T b = queryY(posX, 2 * posY + 1, mid + 1, cry, max(mid + 1, ly), ry);
+			return action(a, b);
+		}
+	}
+	T queryX(int pos, int clx, int crx, int lx, int rx, int ly, int ry) {
+		if (lx > rx)return 0;
+		if (lx == clx && rx == crx)return queryY(pos, 1, 0, m - 1, ly, ry);
+		int mid = (clx + crx) / 2;
+		T a = queryX(2 * pos, clx, mid, lx, min(mid, rx), ly, ry),
+			b = queryX(2 * pos + 1, mid + 1, crx, max(lx, mid + 1), rx, ly, ry);
+		return action(a, b);
+	}
+	void updateY(int posX, int lx, int rx, int posY, int ly, int ry, int a, int b, T val) {
+		if (ly == ry) {
+			if (lx == rx)seg[posX][posY] = val;
+			else seg[posX][posY] = action(seg[2 * posX][posY], seg[2 * posX + 1][posY]);
+		}
+		else {
+			int mid = (ly + ry) / 2;
+			if (b <= mid)updateY(posX, lx, rx, 2 * posY, ly, mid, a, b, val);
+			else updateY(posX, lx, rx, 2 * posY + 1, mid + 1, ry, a, b, val);
+			seg[posX][posY] = action(seg[posX][2 * posY], seg[posX][2 * posY + 1]);
+		}
+	}
+	void updateX(int pos, int lx, int rx, int a, int b, T val) {
+		if (lx != rx) {
+			int mid = (lx + rx) / 2;
+			if(a<=mid)updateX(2 * pos, lx, mid, a, b, val);
+			else updateX(2 * pos + 1, mid + 1, rx, a, b, val);
+		}
+		updateY(pos, lx, rx, 1, 0, m - 1, a, b, val);
+	}
+public:
+	segment2D(int rows, int cols) {
+		n = rows;
+		m = cols;
+		seg.resize(4 * n);
+		for (int i = 0; i < 4 * n; i++) {
+			seg[i].resize(4 * m);
+			fill(seg[i].begin(), seg[i].end(), 0);
+		}
+	}
+	segment2D(int rows, int cols, vector<vector<T>> orig) {
+		n = rows;
+		m = cols;
+		original = orig;
+		seg.resize(4 * n);
+		for (int i = 0; i < 4 * n; i++)seg[i].resize(4 * m);
+		buildX(1, 0, n - 1);
+	}
+	T query(int x1, int y1, int x2, int y2) {
+		return queryX(1, 0, n - 1, x1, x2, y1, y2);
+	}
+	void update(int x, int y, T val) {
+		updateX(1, 0, n - 1, x, y, val);
+	}
+};
+template<class T>
 T customPow(T a, int k) {
 	if (!k)return T(1);
 	T tmp = customPow(a, k / 2);
