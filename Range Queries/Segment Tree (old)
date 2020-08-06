@@ -1,0 +1,40 @@
+  void init() {
+		for (int k = 0; k < size; k++)
+			segment[size + k] = arr[k];
+		for (int k = size - 1; k > 0; k--)
+			segment[k] = action(segment[2 * k], segment[2 * k + 1]);
+	}
+	void update(int index, ll val) {
+		int t = index + size;
+		segment[t] = val;
+		while (t >= 1) {
+			t >>= 1;
+			segment[t] = action(segment[2 * t], segment[2 * t + 1]);
+		}
+	}
+	void add(int index, ll val) {
+		int t = index + size;
+		segment[t] += val;
+		while (t > 1) {
+			t >>= 1;
+			segment[t] = action(segment[2 * t], segment[2 * t + 1]);
+		}
+	}
+	ll query(int fromIncluded, int toNotIncluded) {
+    ll sum = 0; //CHECK
+		fromIncluded += size;
+		toNotIncluded += size;
+		while (fromIncluded < toNotIncluded) {
+			if (fromIncluded % 2 == 1) {
+				sum = action(sum, segment[fromIncluded]);
+				fromIncluded++;
+			}
+			if (toNotIncluded % 2 == 1) {
+				sum = action(sum, segment[toNotIncluded - 1]);
+				toNotIncluded--;
+			}
+			fromIncluded /= 2;
+			toNotIncluded /= 2;
+		}
+		return sum;
+	}
