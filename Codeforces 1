@@ -688,6 +688,98 @@ public:
 		updateX(1, 0, n - 1, x, y, val);
 	}
 };
+struct simpleHLD { //vertex vals, not edges
+public:
+	vector<vector<int>> adj;
+	vector<int> firsts, lasts, vals, tourvals;
+	segmentree<int>* seg; //possible to change to fenwick (check query)
+	lca* lcatree;
+	int n, cr = 0;
+	void init(int src, int prev) {
+		tourvals.pb(vals[src]);
+		firsts[src] = cr++;
+		for (int x : adj[src]) {
+			if (x == prev)continue;
+			init(x, src);
+		}
+		tourvals.pb(-vals[src]);
+		lasts[src] = cr++;
+	}
+	int queryHelp(int high, int low) {
+		return seg->query(firsts[high], firsts[low]);
+	}
+public:
+	simpleHLD(vector<vector<int>> adjacency, vector<int> values) {
+		n = adjacency.size();
+		adj = adjacency;
+		vals = values;
+		firsts.resize(n);
+		lasts.resize(n);
+		init(0, -1);
+		seg = new segmentree<int>(tourvals);
+		lcatree = new lca(adj);
+	}
+	int query(int a, int b) {
+		int l = lcatree->query(a, b);
+		if (l == a) return queryHelp(a, b);
+		else if (l == b) return queryHelp(b, a);
+		else return queryHelp(l, a) + queryHelp(l, b) - tourvals[firsts[l]];
+	}
+	void update(int i, int val) {
+		seg->update(firsts[i], val);
+		seg->update(lasts[i], -val);
+	}
+};
+
+struct simpleHLDEdges { 
+public:
+	vector<vector<pair<int, pii>>> adj;
+	vector<vector<int>> adj2;
+	vector<int> firsts, tourvals, firstEdges, lastEdges;
+	segmentree<int>* seg; //possible to change to fenwick (check query)
+	lca* lcatree;
+	int n, cr = 0;
+	void init(int src, int prev) {
+		firsts[src] = cr++;
+		tourvals.pb(0);
+		for (auto x : adj[src]) {
+			if (x.first == prev)continue;
+			tourvals.pb(x.second.first);
+			firstEdges[x.second.second] = cr++;
+			init(x.first, src);
+			tourvals.pb(-x.second.first);
+			lastEdges[x.second.second] = cr++;
+		}
+	}
+	int queryHelp(int high, int low) {
+		return seg->query(firsts[high], firsts[low]);
+	}
+public:
+	simpleHLDEdges(vector<vector<pair<int, pii>>> adjacency) {
+		n = adjacency.size();
+		adj = adjacency;
+		adj2.resize(n);
+		firstEdges.resize(n - 1);
+		lastEdges.resize(n - 1);
+		for (int i = 0; i < n; i++) {
+			for (auto j : adj[i])adj2[i].pb(j.first);
+		}
+		firsts.resize(n);
+		init(0, -1);
+		seg = new segmentree<int>(tourvals);
+		lcatree = new lca(adj2);
+	}
+	int query(int a, int b) {
+		int l = lcatree->query(a, b);
+		if (l == a) return queryHelp(a, b);
+		else if (l == b) return queryHelp(b, a);
+		else return queryHelp(l, a) + queryHelp(l, b));
+	}
+	void update(int i, int val) {
+		seg->update(firstEdges[i], val);
+		seg->update(lastEdges[i], -val);
+	}
+};
 template<class T>
 T customPow(T a, int k) {
 	if (!k)return T(1);
