@@ -1,0 +1,14 @@
+void update(int index, ll add) {
+		for (int k = index; k < n; k |= (~k & -~k)) {
+			fenwick[k] = fenwick[k] + add;
+		}
+	}
+	ll query(int to) {
+		ll sum = 0;
+		for (int curr = to + 1; curr > 0; curr ^= (curr & -curr)) sum += fenwick[curr - 1];
+		return sum;
+	}
+	ll rangeQuery(int from, int to) {
+		if (!from)return query(to);
+		return query(to) - query(from - 1);
+	}
