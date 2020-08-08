@@ -37,7 +37,7 @@ void init() {
 		heavy[i] = -1;
 		father[i] = -1;
 	}
-	mylca = new lca();
+	mylca = new lca(); //not necessary
 	dfs(0);
 	vals.resize(n);
 	decompose(0, 0);
@@ -65,3 +65,20 @@ int query(int a, int b) {
 	else if (l == b)return queryHelp(b, a);
 	else return max(queryHelp(l, a), queryHelp(l, b));//CHANGE
 }
+
+int query(int a, int b) { //FASTER
+    int res = 0;//CHECK
+    while(head[a] != head[b]) {
+        if (depth[head[a]] > depth[head[b]])
+            swap(a, b);
+        int cur_heavy_path_max = seg->query(pos[head[b]], pos[b]);
+        res = max(res, cur_heavy_path_max); //CHECK
+	b = parent[head[b]];
+    }
+    if (depth[a] > depth[b])
+        swap(a, b);
+    int last_heavy_path_max = seg->query(pos[a], pos[b]);
+    res = max(res, last_heavy_path_max);
+    return res;
+}
+
