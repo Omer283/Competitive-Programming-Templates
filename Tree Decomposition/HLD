@@ -1,0 +1,67 @@
+int father[sz], dep[sz], heavy[sz], head[sz], pos[sz], subt[sz], arr[sz];
+int cur = 0;
+vector<int> vals;
+segmentree<int>* seg;
+lca* mylca;
+
+void dfs(int src) {
+	subt[src] = 1;
+	if (father[src] != -1)dep[src] = dep[father[src]] + 1;
+	int mxSize = 0, mxNode = -1;
+	for (auto x : adj[src]) {
+		if (x == father[src])continue;
+		dep[x] = dep[src] + 1;
+		father[x] = src;
+		dfs(x);
+		subt[src] += subt[x];
+		if (subt[x] > mxSize) {
+			mxSize = subt[x];
+			mxNode = x;
+		}
+	}
+	if (mxNode != -1)heavy[src] = mxNode;
+}
+
+void decompose(int src, int hed) {
+	head[src] = hed;
+	pos[src] = cur++;
+	vals[pos[src]] = arr[src];
+	if (heavy[src] != -1)decompose(heavy[src], hed);
+	for (auto x : adj[src]) {
+		if (x == father[src] || x == heavy[src])continue;
+		decompose(x, x);
+	}
+}
+void init() {
+	foru(i, 0, n) {
+		heavy[i] = -1;
+		father[i] = -1;
+	}
+	mylca = new lca();
+	dfs(0);
+	vals.resize(n);
+	decompose(0, 0);
+	seg = new segmentree<int>(vals);
+}
+
+int queryHelp(int hi, int lo) {
+	int res = -1e9; //CHANGE
+	while (head[hi] != head[lo]) {
+		res = max(res, seg->query(pos[head[lo]], pos[lo]));
+		lo = father[head[lo]];
+	}
+	res = max(res, seg->query(pos[hi], pos[lo]));
+	return res;
+
+}
+
+void change(int a, int value) {
+	seg->update(pos[a], value);
+}
+
+int query(int a, int b) {
+	int l = mylca->query(a, b);
+	if (l == a)return queryHelp(a, b);
+	else if (l == b)return queryHelp(b, a);
+	else return max(queryHelp(l, a), queryHelp(l, b));//CHANGE
+}
