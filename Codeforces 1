@@ -299,7 +299,7 @@ private:
 	vector<T> seg, original;
 	int n;
 	T action(const T& lhs, const T& rhs) {
-		return min(lhs, rhs);
+		return min(lhs, rhs); //CHECK
 	}
 	void build(int i, int l, int r) {
 		if (l > r)return;
@@ -312,7 +312,7 @@ private:
 		}
 	}
 	T queryUtil(int i, int cl, int cr, int l, int r) {
-		if (l > r)return 1e9;
+		if (l > r)return 1e9; //CHECK
 		else if (l == cl && r == cr)return seg[i];
 		else {
 			int mid = (cl + cr) / 2;
@@ -355,7 +355,7 @@ private:
 	vector<T> segment;
 	int size;
 	T action(T a, T b) {
-		return a + b;
+		return a + b; //CHECK
 	}
 public:
 	segmentree(int sz) {
@@ -387,8 +387,8 @@ public:
 			segment[t] = action(segment[2 * t], segment[2 * t + 1]);
 		}
 	}
-	T query(int fromIncluded, int toNotIncluded) {
-		T sum(0);
+	T query(int fromIncluded, int toNotIncluded) { //NOT INCLUDED
+		T sum(0); //CHECK
 		fromIncluded += size;
 		toNotIncluded += size;
 		while (fromIncluded < toNotIncluded) {
@@ -533,12 +533,12 @@ struct seglazy {
 	ll INF_VALUE = INT_MAX;
 private:
 	void pushDown(int i) {
-		delta[2 * i] += delta[i];
+		delta[2 * i] += delta[i]; //CHECK
 		delta[2 * i + 1] += delta[i];
 		delta[i] = 0;
 	}
 	void update(int i) {
-		values[i] = min(values[2 * i] + delta[2 * i], values[2 * i + 1] + delta[2 * i + 1]);
+		values[i] = min(values[2 * i] + delta[2 * i], values[2 * i + 1] + delta[2 * i + 1]); //CHECK
 	}
 	void init(int i, int a, int b) {
 		lohi[i].first = a;
@@ -601,7 +601,7 @@ private:
 	vector<vector<T>> seg, original;
 	int n, m;
 	T action(const T& lhs, const T& rhs) {
-		return gcd(lhs, rhs);
+		return gcd(lhs, rhs); //CHECK
 	}
 	void buildY(int posX, int lx, int rx, int posY, int ly, int ry) {
 		if (ly > ry)return;
