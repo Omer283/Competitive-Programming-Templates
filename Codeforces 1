@@ -552,14 +552,14 @@ private:
 		init(2 * i + 1, m + 1, b);
 	}
 	T rangeQueryUtil(int i, int a, int b) {
-		if (a > b || lohi[i].first > b || lohi[i].second < a)return INF_VALUE;
+		if (a > b || lohi[i].first > b || lohi[i].second < a)return INF_VALUE; //CHECK
 		else if (lohi[i].first >= a && lohi[i].second <= b) return values[i] + delta[i];
 		else {
 			pushDown(i);
 			T left = rangeQueryUtil(2 * i, a, b);
 			T right = rangeQueryUtil(2 * i + 1, a, b);
 			update(i);
-			return min(left, right);
+			return min(left, right); //CHECK
 		}
 	}
 	void rangeUpdateUtil(int i, int a, int b, T val) {
