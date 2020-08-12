@@ -255,10 +255,13 @@ struct fen {
 		foru(i, 0, size)fenwick[i](0);
 		foru(i, 0, size)update(i, arr[i]);
 	}
-	void update(int index, T add) {
+	void add(int index, T add) {
 		for (int k = index; k < size; k |= (~k & -~k)) {
 			fenwick[k] = fenwick[k] + add;
 		}
+	}
+	void update(int index, T nval) {
+		add(index, nval - rangeQuery(index, index));
 	}
 	T query(int to) {
 		T sum = 0;
@@ -705,7 +708,7 @@ public:
 		tourvals.pb(-vals[src]);
 		lasts[src] = cr++;
 	}
-	int queryHelp(int high, int low) {
+	int queryHelp(int high, int low) { //CHECK INT MAYBE LL
 		return seg->query(firsts[high], firsts[low]);
 	}
 public:
