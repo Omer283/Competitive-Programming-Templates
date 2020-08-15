@@ -1,0 +1,60 @@
+struct SingHash {
+private:
+public:
+	ll p, m;
+	vector<ll> pows, invpows;
+	SingHash(ll prime, ll mod, int MAX_SIZE) {
+		p = prime;
+		m = mod;
+		pows.resize(MAX_SIZE);
+		invpows.resize(MAX_SIZE);
+		for (int i = 0; i < MAX_SIZE; i++) {
+			if (!i)pows[i] = 1;
+			else pows[i] = (pows[i - 1] * p) % m;
+		}
+		invpows[MAX_SIZE - 1] = modpow(pows[MAX_SIZE - 1], m - 2, m);
+		for (int i = MAX_SIZE - 2; i >= 0; i--)invpows[i] = (invpows[i + 1] * p) % m;
+	}
+	ll compHash(vector<int> v) { //INT OR STRING??
+		ll res = 0;
+		for (int i = 0; i < v.size(); i++) {
+			res += (pows[i] * (v[i] + 1)); res %= m; //CHANGE ACCORDINGLY
+		}
+		return res;
+	}
+	vector<ll> compArr(vector<int> v) {
+		if (!v.size()) return vector<ll>{};
+		vector<ll> res(v.size(), 0);
+		ll tmp;
+		for (int i = 0; i < v.size(); i++) {
+			tmp = (pows[i] * (v[i] + 1)) % m; //CHANGE
+			if (!i)res[i] = tmp;
+			else res[i] = (res[i - 1] + tmp) % m;
+		}
+		return res;
+	}
+	ll subarrHash(vector<ll> table, int i, int j) {
+		if (i > j)return -1;
+		if (!i)return table[j];
+		return ((table[j] - table[i - 1]) *invpows[i]) % m;
+	}
+};
+
+struct DoubHash {
+private:
+public:
+	SingHash* myHash[2];
+	DoubHash(ll alphabets[2], ll mods[2], int MAX_SIZE) {
+		myHash[0] = new SingHash(alphabets[0], mods[0], MAX_SIZE);
+		myHash[1] = new SingHash(alphabets[1], mods[1], MAX_SIZE);
+	}
+	pll computeHash(vector<int> v) { //CHECK ACCORDINGLY
+		return mp(myHash[0]->compHash(v), myHash[1]->compHash(v));
+	}
+	pair<vll, vll> computeHashArray(vector<int> v) {
+		return mp(myHash[0]->compArr(v), myHash[1]->compArr(v));
+	}
+	pll subHash(pair<vll, vll> table, int i, int j) {
+		return mp(myHash[0]->subarrHash(table.first, i, j), myHash[1]->subarrHash(table.second, i, j));
+	}
+};
