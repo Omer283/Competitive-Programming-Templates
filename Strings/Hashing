@@ -36,7 +36,7 @@ public:
 	ll subarrHash(vector<ll> table, int i, int j) {
 		if (i > j)return -1;
 		if (!i)return table[j];
-		return ((table[j] - table[i - 1]) *invpows[i]) % m;
+		return ((table[j] - table[i - 1] + m) *invpows[i]) % m;
 	}
 };
 
