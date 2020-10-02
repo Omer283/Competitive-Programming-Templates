@@ -240,6 +240,33 @@ struct line {
 	}
 
 };
+struct MinStack {
+public:
+    stack<pair<int, int>> minSize; //minimum, size
+    int stackSize = 0;
+    stack<int> stk;
+    MinStack() {
+        
+    }
+    void push(int x) {
+        stackSize++;
+        stk.push(x);
+        if(minSize.empty()||x<minSize.top().first){
+            minSize.push(make_pair(x,stackSize));
+        }
+    }
+    void pop() {
+        stackSize--;
+        stk.pop();
+        if (!minSize.empty()&&minSize.top().second>stackSize)minSize.pop();
+    }
+    int top() {
+        return stk.top();
+    }
+    int getMin() {
+        return minSize.top().first;
+    }
+};
 template<class T>
 struct fen {
 	vector<T> fenwick;
