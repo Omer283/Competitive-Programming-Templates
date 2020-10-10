@@ -1,0 +1,66 @@
+vector<ll> polyMult(const vector<ll>& lhs, const vector<ll>& rhs) {
+	int n = lhs.size() - 1, m = rhs.size() - 1;
+	vector<ll> ret(n + m + 1, 0);
+	int k;
+	for (int i = 0; i <= n + m; i++) {
+		for (int j = 0; j <= n; j++) {
+			k = i - j;
+			if (k<0 || k>m)continue;
+			ret[i] += (lhs[j] * rhs[k]);
+			ret[i] %= mod;
+		}
+	}
+	return ret;
+}
+
+vector<ll> polyAdd(const vector<ll>& lhs, const vector<ll>& rhs) {
+	int n = lhs.size() - 1, m = rhs.size() - 1, addSize = max(n, m) + 1;
+	vector<ll> ret(addSize, 0);
+	for (int i = 0; i < addSize; i++) {
+		if (i <= n)ret[i] += lhs[i];
+		if (i <= m)ret[i] += rhs[i];
+		ret[i] %= mod;
+	}
+	return ret;
+}
+
+vector<ll> coeffMult(const vector<ll>& poly, const ll& num) {
+	vector<ll> ret(poly.size(), 0);
+	for (int i = 0; i < poly.size(); i++) {
+		ret[i] = poly[i] * num;
+		ret[i] %= mod;
+	}
+	return ret;
+}
+
+ll sub(const vector<ll>& poly, const ll& num) {
+	ll tot = 0, numMult = 1;
+	for (ll coeff : poly) {
+		tot += coeff * numMult;
+		numMult *= num;
+		numMult %= mod;
+		tot %= mod;
+	}
+	return tot;
+}
+
+vector<ll> interpolation(const vector<pll>& pts) {
+	int n = pts.size();
+	vector<ll> ret(1, 0);
+	vector<ll> linear(2, 0);
+	linear[1] = 1;
+	for (int i = 0; i < n; i++) {
+		vector<ll> cr(1, 0);
+		ll coeff = 1;
+		cr[0] = 1;
+		for (int j = 0; j < n; j++) {
+			if (i == j)continue;
+			linear[0] = mod - pts[j].first;
+			cr = polyMult(cr, linear);
+			coeff *= inv(pts[i].first - pts[j].first);
+			coeff %= mod;
+		}
+		ret = polyAdd(ret, coeffMult(coeffMult(cr, coeff), pts[i].second));
+	}
+	return ret;
+}
