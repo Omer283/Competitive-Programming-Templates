@@ -1,0 +1,44 @@
+const int sz=2e5;
+int n;
+int arr[sz], sufarr[sz];
+pair<char, int> tmpv[sz];
+pair<pii, int> myvec[sz];
+vector<pair<pii, int>> buckets[sz];
+ 
+void build(string s) {
+    s += "$";
+    n = s.length();
+    foru(i, 0, n)tmpv[i]={s[i], i};
+    sort(tmpv, tmpv + n);
+    int cur = -1;
+    foru(i, 0, n) {
+        if (i && tmpv[i].first == tmpv[i - 1].first)
+            arr[tmpv[i].second] = cur;
+        else arr[tmpv[i].second] = ++cur;
+    }
+    int curLen = 1;
+    do {
+        cur = 0;
+        foru(i, 0, n) {
+            buckets[arr[(i + curLen) % n]].pb({{arr[i], arr[(i + curLen) % n]}, i});
+        }
+        foru(i, 0, n) {
+            for (pair<pii, int> x : buckets[i])myvec[cur++] = x;
+            buckets[i].clear();
+        }
+        cur = 0;
+        foru(i, 0, n)buckets[myvec[i].first.first].pb({myvec[i].first, myvec[i].second});
+        foru(i, 0, n) {
+            for (pair<pii, int> x : buckets[i])myvec[cur++] = x;
+            buckets[i].clear();
+        }
+        cur = -1;
+        foru(i, 0, n) {
+            if (i && myvec[i].first == myvec[i - 1].first)
+                arr[myvec[i].second] = cur;
+            else arr[myvec[i].second] = ++cur;
+        }
+        curLen <<= 1;
+    } while (curLen < n);
+    foru(i,0,n)sufarr[arr[i]]=i;
+}
