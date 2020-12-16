@@ -1,4 +1,4 @@
-const int sz=2e5;
+const int sz=5e5;
 int n;
 int arr[sz], sufarr[sz];
 pair<char, int> tmpv[sz];
