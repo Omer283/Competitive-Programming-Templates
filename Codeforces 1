@@ -123,7 +123,7 @@ struct DisjointSet {
 		fcnt = size;
 		foru(i, 0, size) {
 			f[i] = i;
-			sz[i] = i;
+			sz[i] = 1;
 		}
 	}
 	int father(int src) {
