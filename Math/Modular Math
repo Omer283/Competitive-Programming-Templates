@@ -8,7 +8,7 @@ void iadd(ll& lhs, const ll& rhs) {
 
 void isubt(ll& lhs, const ll& rhs) {
 	ll ret = (lhs - rhs) % mod;
-	lhs = ret + (ret < 0);
+	lhs = ret + (ret < 0 ? mod : 0);
 }
 
 ll bpw(const ll& lhs, const ll& rhs) {
@@ -33,7 +33,7 @@ ll add(const ll& lhs, const ll& rhs) {
 
 ll subt(const ll& lhs, const ll& rhs) {
 	ll ret = (lhs - rhs) % mod;
-	return ret + (ret < 0);
+	return ret + (ret < 0 ? mod : 0);
 }
 
 ll div(const ll& lhs, const ll& rhs) {
