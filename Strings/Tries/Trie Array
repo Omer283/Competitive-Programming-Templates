@@ -1,0 +1,45 @@
+struct triearr {
+	int words = 0, ab, totalLen, trieSize = 1;
+	vector<vector<int>> trie;
+	vector<int> info;
+	char firstLetter;
+	triearr(int totalLen, int absz, char first) {
+		this->totalLen = totalLen;
+		this->ab = absz;
+		this->firstLetter = first;
+		trie.assign(totalLen, vector<int>(absz, -1));
+		info.assign(totalLen, -1);
+	}
+	void insert(const string& str) {
+		int len = str.length(), cur = 0;
+		foru(i, 0, len) {
+			if (trie[cur][str[i] - firstLetter] == -1)
+				trie[cur][str[i] - firstLetter] = trieSize++;
+			cur = trie[cur][str[i] - firstLetter];
+		}
+		info[cur] = ++words;
+	}
+	bool erase(const string& str) {
+		int len = str.length(), cur = 0;
+		foru(i, 0, len) {
+			if (trie[cur][str[i] - firstLetter] == -1)
+				return false;
+			cur = trie[cur][str[i] - firstLetter];
+		}
+		if (info[cur]) {
+			info[cur] = -1;
+			words--;
+			return true;
+		}
+		return false;
+	}
+	int search(const string& str) { //searches for whole word, not prefix
+		int len = str.length(), cur = 0;
+		foru(i, 0, len) {
+			if (trie[cur][str[i] - firstLetter] == -1)
+				return -1;
+			cur = trie[cur][str[i] - firstLetter];
+		}
+		return info[cur];
+	}
+};
