@@ -1,0 +1,63 @@
+/*
+Author: Omer223
+Purpose: Finding SCCs in a graph using Kosaraju's algorithm.
+Date: 28/03/2021
+Confirmed: Yes, https://codeforces.com/contest/467/problem/D
+*/
+struct SCC { //components sorted in reverse topological order
+public:
+	int n, sccAmt = 0;
+	vector<vector<int>> adj, radj, sccAdj, sccList;
+	vector<int> scc, times;
+	vector<bool> vis;
+	SCC(int n, vector<vector<int>> adj) {
+		this->n = n;
+		this->adj = adj;
+		scc.assign(n, -1);
+		radj.resize(n);
+		vis.assign(n, false);
+		for(int i = 0; i < n; i++) {
+			for (int x : adj[i])
+				radj[x].pb(i);
+		}
+	}
+	void findSCCs() {
+		foru(i, 0, n) {
+			if (!vis[i])
+				dfs1(i);
+		}
+		fill(vis.begin(), vis.end(), false);
+		sccList.resize(n);
+		ford(i, n - 1, 0) {
+			if (!vis[times[i]])
+				dfs2(times[i], sccAmt++);
+		}
+	}
+	void getGraph() {
+		sccAdj.resize(sccAmt);
+		for (int i = 0; i < n; i++) {
+			for (int x : adj[i]) {
+				if (scc[x] != scc[i])
+					sccAdj[scc[i]].pb(scc[x]);
+			}
+		}
+	}
+private:
+	void dfs1(int src) {
+		vis[src] = 1;
+		for (int x : adj[src]) {
+			if (!vis[x])
+				dfs1(x);
+		}
+		times.pb(src);
+	}
+	void dfs2(int src, const int& curscc) {
+		vis[src] = 1;
+		scc[src] = curscc;
+		sccList[curscc].pb(src);
+		for (int x : radj[src]) {
+			if (!vis[x])
+				dfs2(x, curscc);
+		}
+	}
+};
