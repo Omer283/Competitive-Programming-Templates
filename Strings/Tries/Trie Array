@@ -1,26 +1,26 @@
 struct triearr {
-	int words = 0, ab, totalLen, trieSize = 1;
-	vector<vector<int>> trie;
-	vector<int> info;
+	ll words = 0, ab, totalLen, trieSize = 1;
+	vector<vector<ll>> trie;
+	vector<ll> info;
 	char firstLetter;
-	triearr(int totalLen, int absz, char first) {
+	triearr(ll totalLen, ll absz, char first) {
 		this->totalLen = totalLen;
 		this->ab = absz;
 		this->firstLetter = first;
-		trie.assign(totalLen, vector<int>(absz, -1));
+		trie.assign(totalLen, vector<ll>(absz, -1));
 		info.assign(totalLen, -1);
 	}
-	void insert(const string& str) {
-		int len = str.length(), cur = 0;
+	ll insert(const string& str) {
+		ll len = str.length(), cur = 0;
 		foru(i, 0, len) {
 			if (trie[cur][str[i] - firstLetter] == -1)
 				trie[cur][str[i] - firstLetter] = trieSize++;
 			cur = trie[cur][str[i] - firstLetter];
 		}
-		info[cur] = ++words;
+		return info[cur] = words++;
 	}
 	bool erase(const string& str) {
-		int len = str.length(), cur = 0;
+		ll len = str.length(), cur = 0;
 		foru(i, 0, len) {
 			if (trie[cur][str[i] - firstLetter] == -1)
 				return false;
@@ -33,8 +33,8 @@ struct triearr {
 		}
 		return false;
 	}
-	int search(const string& str) { //searches for whole word, not prefix
-		int len = str.length(), cur = 0;
+	ll search(const string& str) {
+		ll len = str.length(), cur = 0;
 		foru(i, 0, len) {
 			if (trie[cur][str[i] - firstLetter] == -1)
 				return -1;
