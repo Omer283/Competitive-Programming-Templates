@@ -36,6 +36,6 @@ ll subt(const ll& lhs, const ll& rhs) {
 	return ret + (ret < 0 ? mod : 0);
 }
 
-ll div(const ll& lhs, const ll& rhs) {
+ll divv(const ll& lhs, const ll& rhs) {
 	return mult(lhs, inv(rhs));
 }
