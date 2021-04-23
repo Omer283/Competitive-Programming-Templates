@@ -1,0 +1,18 @@
+vector<int> getBase(vector<int> a) {
+    const int LOG = 30;
+    vector<int> basis(LOG, -1);
+    foru(i, 0, a.size()) {
+        int msk = (1 << (LOG - 1));
+        ford(j, LOG - 1, 0) {
+            if (a[i] & msk) {
+                if (basis[j] == -1) {
+                    basis[j] = a[i]; break;
+                }
+                else
+                    a[i] ^= basis[j];
+            }
+            msk >>= 1;
+        }
+    }
+    return basis;
+}
