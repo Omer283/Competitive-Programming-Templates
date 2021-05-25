@@ -1,0 +1,33 @@
+template<class T>
+struct SubtreeQueries {
+private:
+	vector<pii> sten;
+	int V, curtime;
+	vector<vector<int>> adj;
+	vector<T> vals, valarr;
+	segmentree<T>* seg;
+	void dfs(int src, int prv) {
+		sten[src].ff = curtime++;
+		valarr.push_back(vals[src]);
+		for (int x : adj[src]) {
+			if (x != prv)dfs(x, src);
+		}
+		sten[src].ss = curtime;
+	}
+public:
+	void init(vector<vector<int>>& adj, vector<T>& vals, int root) {
+		this->adj = adj;
+		this->vals = vals;
+		V = adj.size();
+		sten.assign(V, { -1,-1 });
+		curtime = 0;
+		dfs(root, -1);
+		seg = new segmentree<T>(valarr);
+	}
+	void update(int i, const T& val) {
+		seg->update(sten[i].ff, val);
+	}
+	T query(int i) {
+		return seg->query(sten[i].ff, sten[i].ss-1);
+	}
+};
