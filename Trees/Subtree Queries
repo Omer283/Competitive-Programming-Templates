@@ -24,6 +24,7 @@ public:
 	void init(vector<vector<int>>& adj, vector<T>& vals, int root) {
 		this->adj = adj;
 		this->vals = vals;
+		valarr.clear();
 		V = adj.size();
 		sten.assign(V, { -1,-1 });
 		curtime = 0;
