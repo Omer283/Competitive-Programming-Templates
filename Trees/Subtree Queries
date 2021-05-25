@@ -1,3 +1,9 @@
+/*
+Author: Omer223
+Purpose: Subtree queries using DFS tour
+Date: 25/5/2021
+Confirmed: Yes, CSES subtree queries
+*/
 template<class T>
 struct SubtreeQueries {
 private:
