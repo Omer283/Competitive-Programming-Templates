@@ -39,3 +39,19 @@ ll subt(const ll& lhs, const ll& rhs) {
 ll divv(const ll& lhs, const ll& rhs) {
 	return mult(lhs, inv(rhs));
 }
+
+const int sz = 5e5 + 5;
+ll f[sz], finv[sz];
+ 
+void initf() {
+    f[0] = 1;
+    foru(i, 1, sz)f[i] = mult(i, f[i - 1]);
+    finv[sz - 1] = bpw(f[sz - 1], mod - 2);
+    ford(i, sz - 2, 0)finv[i] = mult(finv[i + 1], i + 1);
+}
+ 
+ll chs(int n, int k) {
+    if (n < k)return 0;
+    else if (n < 0)return 0;
+    return mult(f[n], mult(finv[k], finv[n - k]));
+}
