@@ -1,0 +1,111 @@
+import java.math.BigInteger;
+import java.util.ArrayList;
+
+public class Solution {
+    static ArrayList<int[]> part[][] = new ArrayList[20][20];
+    public static String solution(int w, int h, int s) {
+        generatePartitions(Math.max(w,h));
+        ArrayList<int[]> partitionW = getParts(w), partitionH = getParts(h);
+        BigInteger ans = new BigInteger("0"), tmp;
+        BigInteger fw = fac(w), fh = fac(h), sbi = BigInteger.valueOf(s);
+        for (int[] p : partitionW) {
+            for(int[] q : partitionH) { //Burnside's Lemma
+                tmp = BigInteger.ONE;
+                tmp = tmp.multiply(fw.multiply(fh));
+                tmp = tmp.multiply(bpow(sbi, calc(p,q,Math.max(w,h))));
+                tmp = tmp.divide(dividePartition(p));
+                tmp = tmp.divide(dividePartition(q));
+                ans = ans.add(tmp);
+            }
+        }
+        ans = ans.divide(fac(w));
+        ans = ans.divide(fac(h));
+        return ans.toString();
+    }
+
+    private static int calc(int[] p, int[] q, int mx) {
+        int res = 0;
+        for(int i = 1; i <= mx; i++) {
+            for (int j = 1; j <= mx; j++) {
+                res += p[i] * q[j] * gcd(i,j);
+            }
+        }
+        return res;
+    }
+
+    private static int gcd(int i, int j) {
+        while(j!=0){
+            int tmp = i;
+            i = j;
+            j = tmp % j;
+        }
+        return i;
+    }
+
+
+    private static BigInteger dividePartition(int[] p) {
+        int sz = p.length, n = sz-1;
+        BigInteger ans = BigInteger.ONE;
+        for(int i = 1; i < sz; i++) {
+            ans = ans.multiply(fac(p[i]));
+            for(int j = 0; j < p[i]; j++) {
+                ans = ans.multiply(BigInteger.valueOf(i));
+            }
+        }
+        return ans;
+    }
+    private static BigInteger bpow(BigInteger b, int pow) {
+        if(pow==0)return BigInteger.ONE;
+        BigInteger sq = bpow(b,pow/2);
+        if(pow%2==1) return sq.multiply(sq.multiply(b));
+        else return sq.multiply(sq);
+    }
+
+    private static BigInteger fac(int num) {
+        BigInteger ans = new BigInteger("1");
+        for(int i = 1; i <= num; i++) ans = ans.multiply(BigInteger.valueOf(i));
+        return ans;
+    }
+
+    private static ArrayList<int[]> getParts(int p) {
+        ArrayList<int[]> res = new ArrayList<int[]>();
+        for(int j = 1; j<=p;j++) {
+            for(int[] a : part[p][j]) res.add(a);
+        }
+        return res;
+    }
+
+    private static void generatePartitions(int p){
+        for(int i = 1; i <= p; i++) {
+            for(int j = 1; j <= p; j++) {
+                part[i][j] = new ArrayList<>();
+            }
+        }
+        int[] r;
+        for(int s = 1; s <= p; s++) {
+            for (int mx = 1; mx <= s; mx++) {
+                if(mx==s) {
+                    r = new int[p+1];
+                    r[0]=1;
+                    r[s]=1;
+                    part[s][mx].add(r);
+                }
+                else {
+                    int currSum = s - mx;
+                    for(int nmx = 1; nmx <= Math.min(currSum,mx); nmx++) {
+                        for(int[] tmp : part[currSum][nmx]) {
+                            r = tmp.clone();
+                            r[0]++;
+                            r[mx]++;
+                            part[s][mx].add(r);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    public static void main(String[] args) {
+        //System.out.println(gcd(4,6));
+        System.out.println(solution(3,4,10));
+    }
+}
