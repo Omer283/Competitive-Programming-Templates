@@ -1,0 +1,196 @@
+#define fast ios::sync_with_stdio(false); cin.tie(0); cout.tie(0)
+#define foru(i, k, n) for (int i = k; i < n; i++)
+#define pb push_back
+#define mp make_pair
+
+#include <iostream>
+#include <unordered_map>
+#include <algorithm>
+#include <fstream>
+#include <cstdio>
+#include <vector>
+#include <bitset>
+
+using namespace std;
+typedef long long ll;
+typedef pair<int, int> pii;
+typedef pair<pii, pii> pif;
+void IO(string name) {
+	freopen((name + ".in").c_str(), "r", stdin);
+	freopen((name + ".out").c_str(), "w", stdout);
+	//freopen("outbad.txt", "w", stdout);
+}
+int depth[100001];
+template<class T>
+struct rmq {
+	vector<vector<T>> a;
+	vector<int> logs;
+	int dep, len;
+	rmq(vector<T> arr) {
+		len = arr.size();
+		dep = 0;
+		int tmp = len;
+		while (tmp) {
+			tmp >>= 1;
+			dep++;
+		}
+		a.resize(dep);
+		foru(i, 0, dep) {
+			a[i].resize(len);
+			for (int j = 0; j + (1 << i) <= len; j++) {
+				if (!i)a[i][j] = arr[j];
+				else a[i][j] = min(a[i - 1][j], a[i - 1][j + (1 << (i - 1))]);
+			}
+		}
+		initLogs();
+	}
+	void initLogs() {
+		logs.resize(len + 1);
+		logs[1] = 0;
+		foru(i, 2, len + 1)logs[i] = logs[i >> 1] + 1;
+	}
+	T query(int l, int r) {
+		int mylen = logs[r - l + 1];
+		return min(a[mylen][l], a[mylen][r - (1 << mylen) + 1]);
+	}
+};
+struct lca {
+	vector<vector<int>> adj;
+	vector<int> appear;
+	vector<pii> dep;
+	rmq<pii>* tree;
+	int sz;
+	lca(vector<vector<int>> adjacency) {
+		adj = adjacency;
+		sz = adjacency.size();
+		appear.resize(sz);
+		depth[0] = -1;
+		dfsscan(0, 0, 0);
+		tree = new rmq<pii>(dep);
+	}
+	void dfsscan(int src, int prev, int currdep) {
+		appear[src] = dep.size();
+		depth[src] = depth[prev] + 1;
+		dep.pb(mp(currdep, src));
+		for (auto x : adj[src]) {
+			if (x == prev)continue;
+			dfsscan(x, src, currdep + 1);
+			dep.pb(mp(currdep, src));
+		}
+	}
+	int query(int a, int b) {
+		int x = min(appear[a], appear[b]), y = max(appear[a], appear[b]);
+		return tree->query(x, y).second;
+	}
+};
+
+const int sz = 1e5 + 1;
+int n, q, B, t = 0;
+int cntl[sz], cntr[sz], val[sz];
+bitset<sz> ans;
+vector<vector<int>> adj;
+vector<pif> queries;
+lca* tre;
+vector<pii> ord;
+vector<int> tin;
+
+void reset() {
+	queries.clear();
+	ord.clear();
+	free(tre);
+	for (vector<int> x : adj)x.clear();
+	adj.clear();
+	ans.reset();
+	t = 0;
+}
+
+
+bool moSort(pif x, pif y) {
+	if (tin[x.first.first] / B != tin[y.first.first] / B)return tin[x.first.first] / B <= tin[y.first.first] / B;
+	else if (tin[x.first.second] != tin[y.first.second])return tin[x.first.second] <= tin[y.first.second];
+	else if (x.second.first != y.second.first)return x.second.first <= y.second.first;
+	else if (x.second.second != y.second.second)return x.second.second <= y.second.second;
+	else return tin[x.first.first] <= tin[y.first.first];
+}
+
+
+void input() {
+	cin >> n >> q;
+	foru(i, 0, n) {
+		cin >> val[i];
+		val[i]--;
+	}
+	int x, y, z;
+	adj.resize(n);
+	foru(i, 0, n - 1) {
+		cin >> x >> y; x--; y--;
+		adj[x].pb(y);
+		adj[y].pb(x);
+	}
+	tre = new lca(adj);
+	foru(i, 0, q) {
+		cin >> x >> y >> z; x--; y--; z--;
+		int mylca = tre->query(x, y);
+		if (mylca == x) queries.pb(mp(mp(x, y), mp(z, i)));
+		else if (mylca == y) queries.pb(mp(mp(y, x), mp(z, i)));
+		else {
+			queries.pb(mp(mp(mylca, x), mp(z, i)));
+			queries.pb(mp(mp(mylca, y), mp(z, i)));
+		}
+	}
+}
+
+int main() {
+	IO("milkvisits");
+	int t;
+	//cin >> t;
+	t = 1;
+	foru(i, 0, t) {
+		reset();
+		input();
+		tin = tre->appear;
+		ord = tre->dep;
+		int m = ord.size();
+		B = round((long double)m / sqrt(q));
+		if (B > m)B--;
+		if (B <= 0)B++;
+		sort(queries.begin(), queries.end(), moSort);
+		int ind = 0, qsz = queries.size();
+		while (ind < qsz) {
+			int bnum = tin[queries[ind].first.first] / B;
+			int l = 0, r = 0, destl, destr, qnum;
+			cntl[val[0]] = 1;
+			cntr[val[0]] = 1;
+			while (ind < qsz && tin[queries[ind].first.first] / B == bnum) {
+				destl = tin[queries[ind].first.first];
+				destr = tin[queries[ind].first.second];
+				qnum = queries[ind].second.second;
+				while (r < destr) {
+					r++;
+					if (ord[r].first > ord[r - 1].first)cntr[val[ord[r].second]]++;
+					else cntr[val[ord[r - 1].second]]--;
+				}
+				while (l < destl) {
+					l++;
+					if (ord[l].first > ord[l - 1].first)cntl[val[ord[l].second]]++;
+					else cntl[val[ord[l - 1].second]]--;
+				}
+				while (l > destl) {
+					l--;
+					if (ord[l].first > ord[l + 1].first)cntl[val[ord[l].second]]++;
+					else cntl[val[ord[l + 1].second]]--;
+				}
+				int reqval = queries[ind].second.first;
+				if (cntr[reqval] - cntl[reqval] + (val[ord[l].second] == reqval) > 0) ans[qnum] = 1;
+				ind++;
+			}
+			foru(i, 0, n) {
+				cntl[i] = 0;
+				cntr[i] = 0;
+			}
+		}
+		foru(i, 0, q)cout << ans[i];
+		cout << endl;
+	}
+	return 0;
+}
