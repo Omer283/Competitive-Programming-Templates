@@ -1,0 +1,72 @@
+/*
+Author: Omer223
+Purpose: Li Chao tree, not sparse, supports negatives. Defaulted to maximum. Iterative.
+Date: 17/9/2021
+Confirmed: Yes, https://codeforces.com/contest/631/problem/E
+*/
+typedef ll ftype;
+typedef pair<ftype, ftype> Line;
+
+const int maxn = 2e6 + 5;
+int largestEval; //essentially maxn / 2
+Line seg[4 * maxn];
+
+inline ftype eval(const Line & ln, const ftype & x) {
+    return ln.ff * x + ln.ss;
+}
+
+const ftype neginf = -1e16; //CHANGE
+
+inline bool cmp(const ftype& lhs, const ftype& rhs) {
+    return lhs > rhs; //CHANGE
+}
+inline ftype better(const ftype& lhs, const ftype& rhs) {
+    return max(lhs, rhs); //CHANGE
+}
+
+void addLine(Line ln) { //r excluded
+    int i = 1, l = 0, r = 2 * largestEval + 1;
+    while (true) {
+        if (ln == seg[i])return;
+        int mid = (l + r) / 2;
+        int realL = l - largestEval, realMid = mid - largestEval;
+        bool lBetter = cmp(eval(ln, realL), eval(seg[i], realL));
+        bool midBetter = cmp(eval(ln, realMid), eval(seg[i], realMid));
+        if (midBetter)
+            swap(seg[i], ln);
+        if (r - l == 1)
+            return;
+        else if (midBetter != lBetter) {
+            i <<= 1;
+            r = mid;
+        }
+        else {
+            i <<= 1; i++;
+            l = mid;
+        }
+    }
+}
+ftype query(ftype x) {
+    ftype bst = neginf;
+    int i = 1, l = 0, r = 2 * largestEval + 1;
+    while (true) {
+        bst = better(bst, eval(seg[i], x));
+        if (r - l == 1)
+            break;
+        int mid = (l + r) / 2;
+        if (x + largestEval < mid) {
+            i <<= 1;
+            r = mid;
+        }
+        else {
+            i <<= 1; i++;
+            l = mid;
+        }
+    }
+    return bst;
+}
+void build(int large) { //queries are [-large, large]
+    largestEval = large;
+    Line def(0, neginf);
+    foru(i, 0, 8 * large)seg[i] = def;
+}
