@@ -1,0 +1,74 @@
+/*
+Author: Omer223
+Purpose: Li Chao tree, not sparse, supports negatives. Defaulted to maximum.
+Date: 17/9/2021
+Confirmed: Yes, https://codeforces.com/contest/631/problem/E
+*/
+typedef ll ftype;
+typedef complex<ftype> pt;
+ 
+ftype dot(const pt & a, const pt & b) {
+    return (conj(a) * b).real();
+}
+ 
+struct Line {
+    pt l;
+    Line(ftype m, ftype b) {
+        l = { m,b };
+    }
+    ftype eval(ftype x) {
+        return dot(l, { x, 1 });
+    }
+    const bool operator==(Line other) {
+        return l == other.l;
+    }
+};
+ 
+struct LiChao { //maximum
+private:
+    vector<Line> seg;
+    int n;
+    const ftype neginf = -1e16; //CHANGE
+    inline bool cmp(const ftype& lhs, const ftype& rhs) {
+        return lhs > rhs; //CHANGE
+    }
+    inline ftype better(const ftype& lhs, const ftype& rhs) {
+        return max(lhs, rhs); //CHANGE
+    }
+    void addLine(Line ln, int i, int l, int r) { //r excluded
+        if (ln == seg[i])return;
+        int mid = (l + r) / 2;
+        int realL = l - n, realMid = mid - n;
+        bool lBetter = cmp(ln.eval(realL), seg[i].eval(realL));
+        bool midBetter = cmp(ln.eval(realMid), seg[i].eval(realMid));
+        if (midBetter)
+            swap(seg[i], ln);
+        if (r - l == 1)
+            return;
+        else if (midBetter != lBetter)
+            addLine(ln, 2 * i, l, mid);
+        else
+            addLine(ln, 2 * i + 1, mid, r);
+    }
+    ftype query(ftype x, int i, int l, int r) {
+        if (r - l == 1)
+            return seg[i].eval(x);
+        int mid = (l + r) / 2;
+        if (x + n < mid)
+            return better(query(x, 2 * i, l, mid), seg[i].eval(x));
+        else
+            return better(query(x, 2 * i + 1, mid, r), seg[i].eval(x));
+    }
+public:
+    void build(int n) { //queries are [-n, n]
+        this->n = n;
+        Line def(0, neginf);
+        seg.assign(8 * n + 5, def);
+    }
+    void addLine(Line ln) {
+        addLine(ln, 1, 0, 2 * n + 1);
+    }
+    ftype query(ftype x) {
+        return query(x, 1, 0, 2 * n + 1);
+    }
+};
