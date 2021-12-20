@@ -1,9 +1,9 @@
 void imult(ll& lhs, const ll& rhs) {
-	lhs = ((lhs % mod) * (rhs % mod)) % mod;
+	lhs = (lhs * rhs) % mod;
 }
 
 void iadd(ll& lhs, const ll& rhs) {
-	lhs = ((lhs%mod) + (rhs%mod)) % mod;
+	lhs = (lhs + rhs) % mod;
 }
 
 void isubt(ll& lhs, const ll& rhs) {
@@ -24,11 +24,11 @@ ll inv(const ll& x) {
 }
 
 ll mult(const ll& lhs, const ll& rhs) {
-	return ((lhs % mod) * (rhs % mod)) % mod;
+	return (lhs * rhs) % mod;
 }
 
 ll add(const ll& lhs, const ll& rhs) {
-	return ((lhs%mod) + (rhs%mod)) % mod;
+	return (lhs + rhs) % mod;
 }
 
 ll subt(const ll& lhs, const ll& rhs) {
