@@ -1,0 +1,38 @@
+ll lower(string s) {
+    int n = s.length();
+    ll tot = (tpw[n] - 1) / 9 + 1;
+    for (int i = 0; i < n; i++) {
+        int remdigs = n - i - 1;
+        for (int d = 0; d < s[i] - '0'; d++) {
+            tot += (tpw[remdigs]);
+        }
+    }
+    return tot;
+}
+
+ll zeros(string s, bool f) {
+    if (s.length() == 1 && f)return (s[0] == '0');
+    else if (s.length() == 1)return 1;
+    int n = s.length(), remdigs = n - 1;
+    ll tot = 0;
+    if (!f) {
+        if (s[0] != '0') {
+            tot += (tpw[remdigs + 1] - 1) / 9;
+        }
+    }
+    for (int d = 1; d < s[0] - '0'; d++) {
+        ll bads = (npw[remdigs + 1] - 1) / 8;
+        ll goods = (tpw[remdigs + 1] - 1) / 9;
+        tot += (goods - bads);
+    }
+    for (int d = s[0] - '0' + 1; d <= 9; d++) {
+        ll bads = (npw[remdigs] - 1) / 8;
+        ll goods = (tpw[remdigs] - 1) / 9;
+        tot += (goods - bads);
+    }
+    if (!f && s[0] == '0') {
+        tot += lower(s.substr(1, n - 1));
+        return tot;
+    }
+    return tot + zeros(s.substr(1, n - 1), 0);
+}
