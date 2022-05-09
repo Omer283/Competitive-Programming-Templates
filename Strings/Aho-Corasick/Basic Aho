@@ -1,0 +1,66 @@
+/*
+Author: Omer223
+Purpose: Basic Aho Corasick automaton, no extra functionality
+Date: 5/9/2022
+Confirmed: Yes, https://onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&page=show_problem&problem=1620
+*/
+const int abSz = 52; //CHANGE THIS
+
+struct Aho { //CALL INIT BEFORE USAGE, AND BUILDAHO AFTER ALL INSERTIONS
+    struct Node {
+        int p = -1;
+        int pchr = -1;
+        vector<int> trieNext, autNext; //Change to arrays to optimise
+        int suf = -1;
+        Node(int par, int downChar) : p(par), pchr(downChar) {
+            trieNext.assign(abSz, -1);
+            autNext.assign(abSz, -1);
+        }
+    };
+    vector<Node*> trie;
+    int words;
+    void init() { //Call this
+        trie.clear();
+        trie.push_back(new Node(-1, -1));
+        trie.back()->suf = 0;
+    }
+    int insert(const vector<int>& st) { //Inserts a string (trie insertion)
+        words++;
+        int curNode = 0;
+        for (int c : st) {
+            if (trie[curNode]->trieNext[c] == -1) {
+                trie[curNode]->trieNext[c] = trie.size();
+                trie.push_back(new Node(curNode, c));
+            }
+            curNode = trie[curNode]->trieNext[c];
+        }
+        return curNode;
+    }
+    void buildAho() { //Call this after all insertions
+        for (int i = 0; i < trie.size(); i++) {
+            sufLink(i);
+            for (int j = 0; j < abSz; j++)
+                trans(i, j);
+        }
+    }
+    int sufLink(int src) { //Creates the suffix link for a specific node
+        int ans = 0;
+        if (trie[src]->suf != -1)
+            ans = trie[src]->suf;
+        else if (trie[src]->p == 0)
+            ans = 0;
+        else 
+            ans = trans(sufLink(trie[src]->p), trie[src]->pchr);
+        return trie[src]->suf = ans;
+    }
+    int trans(int src, int c) { //Creates the transition for a specific node and character
+        int ans = 0;
+        if (trie[src]->autNext[c] != -1)
+            ans = trie[src]->autNext[c];
+        else if (trie[src]->trieNext[c] != -1)
+            ans = trie[src]->trieNext[c];
+        else if (src != 0)
+            ans = trans(sufLink(src), c);
+        return trie[src]->autNext[c] = ans;
+    }
+};
