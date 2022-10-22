@@ -753,7 +753,7 @@ public:
 		int l = lcatree->query(a, b);
 		if (l == a) return queryHelp(a, b);
 		else if (l == b) return queryHelp(b, a);
-		else return queryHelp(l, a) + queryHelp(l, b) - tourvals[firsts[l]];
+		else return queryHelp(l, a) + queryHelp(l, b) - tourvals[firsts[l]]; //WRONG! should be segmentree.query(firsts[l], firsts[l]) or something like that
 	}
 	void update(int i, int val) {
 		seg->update(firsts[i], val);
